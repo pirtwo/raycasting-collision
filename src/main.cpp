@@ -104,23 +104,24 @@ bool rayVsBox(
     sf::Vector2f &contactPoint,
     sf::Vector2f &contactNormal)
 {
+
     float boxMinX = boxPos.x;
     float boxMinY = boxPos.y;
     float boxMaxX = boxPos.x + boxSize.x;
     float boxMaxY = boxPos.y + boxSize.y;
+
+    float lineMinX = std::min(rayOri.x, rayOri.x + rayDir.x);
+    float lineMaxX = std::max(rayOri.x, rayOri.x + rayDir.x);
+    float lineMinY = std::min(rayOri.y, rayOri.y + rayDir.y);
+    float lineMaxY = std::max(rayOri.y, rayOri.y + rayDir.y);
 
     float t0x = (boxMinX - rayOri.x) / rayDir.x;
     float t1x = (boxMaxX - rayOri.x) / rayDir.x;
     float t0y = (boxMinY - rayOri.y) / rayDir.y;
     float t1y = (boxMaxY - rayOri.y) / rayDir.y;
 
-    float txMin = std::min(t0x, t1x);
-    float txMax = std::max(t0x, t1x);
-    float tyMin = std::min(t0y, t1y);
-    float tyMax = std::max(t0y, t1y);
-
-    float tMin = std::max(txMin, tyMin);
-    float tMax = std::min(txMax, tyMax);
+    float tMin = std::max(std::min(t0x, t1x), std::min(t0y, t1y));
+    float tMax = std::min(std::max(t0x, t1x), std::max(t0y, t1y));
 
     if (tMax < tMin)
         return false;
@@ -129,6 +130,12 @@ bool rayVsBox(
         tMin >= 0
             ? rayOri + rayDir * tMin
             : rayOri + rayDir * tMax;
+
+    if (contactPoint.x < lineMinX ||
+        contactPoint.x > lineMaxX ||
+        contactPoint.y < lineMinY ||
+        contactPoint.y > lineMaxY)
+        return false;
 
     if (contactPoint.x == boxMinX)
     {
