@@ -1,20 +1,9 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
-#include <vector>
-#include <math.h>
-
-sf::Vector2f calcNormal(sf::Vector2f &v);
-bool rayVsBox(
-    sf::Vector2f rayOri,
-    sf::Vector2f rayDir,
-    sf::Vector2f boxPos,
-    sf::Vector2f boxSize,
-    sf::Vector2f &contactPoint,
-    sf::Vector2f &contactNormal);
+#include "Collision.h"
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(700, 500), "Ray Casting Collision Detecttion");
+    sf::RenderWindow window(sf::VideoMode(700, 500), "Ray Vs Box Collision");
     window.setFramerateLimit(60);
 
     sf::Vector2i mousePos;
@@ -43,6 +32,7 @@ int main()
     sf::Vector2f ray;
     sf::Vector2f contactPoint;
     sf::Vector2f contactNormal;
+    float contactDistance;
 
     while (window.isOpen())
     {
@@ -72,7 +62,8 @@ int main()
             box.getPosition(),
             box.getSize(),
             contactPoint,
-            contactNormal);
+            contactNormal,
+            contactDistance);
 
         //======== draw ===========//
 
@@ -94,69 +85,4 @@ int main()
     }
 
     return EXIT_SUCCESS;
-}
-
-bool rayVsBox(
-    sf::Vector2f rayOri,
-    sf::Vector2f rayDir,
-    sf::Vector2f boxPos,
-    sf::Vector2f boxSize,
-    sf::Vector2f &contactPoint,
-    sf::Vector2f &contactNormal)
-{
-
-    float boxMinX = boxPos.x;
-    float boxMinY = boxPos.y;
-    float boxMaxX = boxPos.x + boxSize.x;
-    float boxMaxY = boxPos.y + boxSize.y;
-
-    float lineMinX = std::min(rayOri.x, rayOri.x + rayDir.x);
-    float lineMaxX = std::max(rayOri.x, rayOri.x + rayDir.x);
-    float lineMinY = std::min(rayOri.y, rayOri.y + rayDir.y);
-    float lineMaxY = std::max(rayOri.y, rayOri.y + rayDir.y);
-
-    float t0x = (boxMinX - rayOri.x) / rayDir.x;
-    float t1x = (boxMaxX - rayOri.x) / rayDir.x;
-    float t0y = (boxMinY - rayOri.y) / rayDir.y;
-    float t1y = (boxMaxY - rayOri.y) / rayDir.y;
-
-    float tMin = std::max(std::min(t0x, t1x), std::min(t0y, t1y));
-    float tMax = std::min(std::max(t0x, t1x), std::max(t0y, t1y));
-
-    if (tMax < tMin)
-        return false;
-
-    contactPoint =
-        tMin >= 0
-            ? rayOri + rayDir * tMin
-            : rayOri + rayDir * tMax;
-
-    if (contactPoint.x < lineMinX ||
-        contactPoint.x > lineMaxX ||
-        contactPoint.y < lineMinY ||
-        contactPoint.y > lineMaxY)
-        return false;
-
-    if (contactPoint.x == boxMinX)
-    {
-        contactNormal.x = -1;
-        contactNormal.y = 0;
-    }
-    if (contactPoint.x == boxMaxX)
-    {
-        contactNormal.x = 1;
-        contactNormal.y = 0;
-    }
-    if (contactPoint.y == boxMinY)
-    {
-        contactNormal.x = 0;
-        contactNormal.y = -1;
-    }
-    if (contactPoint.y == boxMaxY)
-    {
-        contactNormal.x = 0;
-        contactNormal.y = 1;
-    }
-
-    return true;
 }
