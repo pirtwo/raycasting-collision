@@ -12,7 +12,6 @@ bool rayVsBox(
     sf::Vector2f boxPos,
     sf::Vector2f boxSize,
     sf::Vector2f &contactPoint,
-    sf::Vector2f &contactNormal,
-    float &contactDist);
+    sf::Vector2f &contactNormal);
 
 #endif

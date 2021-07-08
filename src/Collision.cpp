@@ -6,8 +6,7 @@ bool rayVsBox(
     sf::Vector2f boxPos,
     sf::Vector2f boxSize,
     sf::Vector2f &contactPoint,
-    sf::Vector2f &contactNormal,
-    float &contactDist)
+    sf::Vector2f &contactNormal)
 {
     sf::Vector2f cp(0.f, 0.f);
 
@@ -46,9 +45,6 @@ bool rayVsBox(
 
     // set contact point
     contactPoint = cp;
-
-    // set contact distance
-    contactDist = tMin >= 0 ? tMin : tMax;
 
     // set contact normal
     if (contactPoint.x == boxMinX)
