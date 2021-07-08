@@ -1,10 +1,15 @@
 #include <SFML/Graphics.hpp>
 #include "Collision.h"
+#include <math.h>
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(700, 500), "Ray Vs Box Collision");
     window.setFramerateLimit(60);
+
+    sf::Font font;
+    if (!font.loadFromFile("./assets/SourceSansPro-Regular.ttf"))
+        return EXIT_FAILURE;
 
     sf::Vector2i mousePos;
 
@@ -29,10 +34,17 @@ int main()
     marker.setOrigin(5, 5);
 
     bool hasContact = false;
-    sf::Vector2f ray;
-    sf::Vector2f contactPoint;
-    sf::Vector2f contactNormal;
-    float contactDistance;
+    sf::Vector2f ray(0, 0);
+    sf::Vector2f contactPoint(0, 0);
+    sf::Vector2f contactNormal(0, 0);
+    float contactDistance = 0;
+
+    char info[100];
+    sf::Text infoText;
+    infoText.setFont(font);
+    infoText.setPosition(20, 20);
+    infoText.setFillColor(sf::Color::Yellow);
+    infoText.setCharacterSize(15);
 
     while (window.isOpen())
     {
@@ -62,25 +74,40 @@ int main()
             box.getPosition(),
             box.getSize(),
             contactPoint,
-            contactNormal,
+            contactNormal);
+
+        if (hasContact)
+            contactDistance = sqrt(
+                pow(contactPoint.x - line[0].position.x, 2) +
+                pow(contactPoint.y - line[0].position.y, 2));
+
+        snprintf(
+            info, 100,
+            "P1 (%.2f, %.2f)\r\nP2 (%.2f, %.2f)\r\nCP(%.2f, %.2f)\r\nCD = %.2f",
+            line[0].position.x,
+            line[0].position.y,
+            line[1].position.x,
+            line[1].position.y,
+            contactPoint.x,
+            contactPoint.y,
             contactDistance);
+
+        infoText.setString(info);
 
         //======== draw ===========//
 
         window.clear();
         window.draw(box);
-
         window.draw(line, 2, sf::PrimitiveType::LineStrip);
         if (hasContact)
         {
             norm[0].position = contactPoint;
             norm[1].position = contactPoint + contactNormal * 30.f;
             window.draw(norm, 2, sf::PrimitiveType::LineStrip);
-
             marker.setPosition(contactPoint);
             window.draw(marker);
         }
-
+        window.draw(infoText);
         window.display();
     }
 
